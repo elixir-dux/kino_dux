@@ -30,6 +30,7 @@ defmodule KinoDux.MixProject do
   defp deps do
     [
       {:kino, "~> 0.14"},
+      {:kino_vega_lite, "~> 0.1", optional: true},
       {:dux, github: "elixir-dux/dux"},
       {:ex_doc, "~> 0.36", only: :dev, runtime: false}
     ]

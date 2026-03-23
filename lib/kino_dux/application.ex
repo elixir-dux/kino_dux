@@ -6,6 +6,9 @@ defmodule KinoDux.Application do
   @impl true
   def start(_type, _args) do
     Kino.SmartCell.register(KinoDux.SQLPreviewCell)
+    Kino.SmartCell.register(KinoDux.SourceBrowserCell)
+    Kino.SmartCell.register(KinoDux.ChartCell)
+    Kino.SmartCell.register(KinoDux.FlameClusterCell)
 
     children = []
     opts = [strategy: :one_for_one, name: KinoDux.Supervisor]
