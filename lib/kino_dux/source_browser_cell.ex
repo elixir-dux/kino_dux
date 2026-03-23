@@ -64,6 +64,16 @@ defmodule KinoDux.SourceBrowserCell do
         "sql" ->
           ~s(#{variable} = Dux.from_query("#{escape_string(path)}"))
 
+        "attached" ->
+          # path is "db_name.table_name" e.g. "warehouse.public.customers"
+          case String.split(path, ".", parts: 2) do
+            [db, table] ->
+              ~s(#{variable} = Dux.from_attached(:#{db}, "#{escape_string(table)}"))
+
+            _ ->
+              ~s(# Specify as db_name.table_name e.g. warehouse.public.customers)
+          end
+
         _ ->
           ""
       end
@@ -127,6 +137,7 @@ defmodule KinoDux.SourceBrowserCell do
             <option value="csv">CSV</option>
             <option value="ndjson">NDJSON</option>
             <option value="sql">Raw SQL</option>
+            <option value="attached">Attached DB</option>
           </select>
         </div>
         <div class="row">
@@ -160,9 +171,10 @@ defmodule KinoDux.SourceBrowserCell do
           parquet: "Supports local paths, S3 URIs, and glob patterns",
           csv: "Local or S3 path to CSV file",
           ndjson: "Local or S3 path to newline-delimited JSON",
-          sql: "Any DuckDB SQL query (e.g. SELECT * FROM read_parquet(...))"
+          sql: "Any DuckDB SQL query (e.g. SELECT * FROM read_parquet(...))",
+          attached: "db_name.table_name (use Dux.attach/3 first)"
         };
-        const labels = { parquet: "Path", csv: "Path", ndjson: "Path", sql: "SQL" };
+        const labels = { parquet: "Path", csv: "Path", ndjson: "Path", sql: "SQL", attached: "Table" };
         hintEl.textContent = hints[type] || "";
         labelEl.textContent = labels[type] || "Path";
       }
