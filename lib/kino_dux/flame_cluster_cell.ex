@@ -76,12 +76,12 @@ defmodule KinoDux.FlameClusterCell do
 
   defp backend_opts("fly", cpus, memory, gpu) do
     opts = [
-      ~s(token: System.fetch_env!("FLY_API_TOKEN")),
+      ~s[token: System.fetch_env!("FLY_API_TOKEN")],
       "cpus: #{cpus}",
       "memory_mb: #{memory}"
     ]
 
-    opts = if gpu != "", do: opts ++ [~s(gpu_kind: "#{gpu}")], else: opts
+    opts = if gpu != "", do: opts ++ [~s[gpu_kind: "#{gpu}"]], else: opts
     Enum.join(opts, ", ")
   end
 

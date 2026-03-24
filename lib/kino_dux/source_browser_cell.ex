@@ -46,39 +46,43 @@ defmodule KinoDux.SourceBrowserCell do
     if variable == "" or path == "" do
       ""
     else
-      case attrs["source_type"] do
-        "parquet" ->
-          ~s(#{variable} = Dux.from_parquet("#{escape_string(path)}"))
-
-        "csv" ->
-          opts = csv_opts(attrs)
-          if opts == "" do
-            ~s(#{variable} = Dux.from_csv("#{escape_string(path)}"))
-          else
-            ~s(#{variable} = Dux.from_csv("#{escape_string(path)}", #{opts}))
-          end
-
-        "ndjson" ->
-          ~s(#{variable} = Dux.from_ndjson("#{escape_string(path)}"))
-
-        "sql" ->
-          ~s(#{variable} = Dux.from_query("#{escape_string(path)}"))
-
-        "attached" ->
-          # path is "db_name.table_name" e.g. "warehouse.public.customers"
-          case String.split(path, ".", parts: 2) do
-            [db, table] ->
-              ~s(#{variable} = Dux.from_attached(:#{db}, "#{escape_string(table)}"))
-
-            _ ->
-              ~s(# Specify as db_name.table_name e.g. warehouse.public.customers)
-          end
-
-        _ ->
-          ""
-      end
+      generate_source(attrs["source_type"], variable, path, attrs)
     end
   end
+
+  defp generate_source("parquet", variable, path, _attrs) do
+    ~s[#{variable} = Dux.from_parquet("#{escape_string(path)}")]
+  end
+
+  defp generate_source("csv", variable, path, attrs) do
+    opts = csv_opts(attrs)
+
+    if opts == "" do
+      ~s[#{variable} = Dux.from_csv("#{escape_string(path)}")]
+    else
+      ~s[#{variable} = Dux.from_csv("#{escape_string(path)}", #{opts})]
+    end
+  end
+
+  defp generate_source("ndjson", variable, path, _attrs) do
+    ~s[#{variable} = Dux.from_ndjson("#{escape_string(path)}")]
+  end
+
+  defp generate_source("sql", variable, path, _attrs) do
+    ~s[#{variable} = Dux.from_query("#{escape_string(path)}")]
+  end
+
+  defp generate_source("attached", variable, path, _attrs) do
+    case String.split(path, ".", parts: 2) do
+      [db, table] ->
+        ~s[#{variable} = Dux.from_attached(:#{db}, "#{escape_string(table)}")]
+
+      _ ->
+        ~s[# Specify as db_name.table_name e.g. warehouse.public.customers]
+    end
+  end
+
+  defp generate_source(_type, _variable, _path, _attrs), do: ""
 
   defp csv_opts(attrs) do
     opts = []

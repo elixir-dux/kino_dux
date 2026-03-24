@@ -1,7 +1,7 @@
 defmodule KinoDux.MixProject do
   use Mix.Project
 
-  @version "0.1.0-dev"
+  @version "0.1.0"
   @source_url "https://github.com/elixir-dux/kino_dux"
 
   def project do
@@ -15,9 +15,14 @@ defmodule KinoDux.MixProject do
       deps: deps(),
       package: package(),
       docs: docs(),
+      aliases: aliases(),
       source_url: @source_url,
       homepage_url: @source_url
     ]
+  end
+
+  def cli do
+    [preferred_envs: [check: :test]]
   end
 
   def application do
@@ -31,7 +36,8 @@ defmodule KinoDux.MixProject do
     [
       {:kino, "~> 0.14"},
       {:kino_vega_lite, "~> 0.1", optional: true},
-      {:dux, github: "elixir-dux/dux"},
+      {:dux, "~> 0.2.0"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.36", only: :dev, runtime: false}
     ]
   end
@@ -50,7 +56,28 @@ defmodule KinoDux.MixProject do
   defp docs do
     [
       main: "KinoDux",
-      source_ref: "v#{@version}"
+      source_ref: "v#{@version}",
+      extras: ["README.md"],
+      groups_for_modules: [
+        "Rich Rendering": [KinoDux.LazyView, KinoDux.Progress],
+        "Smart Cells": [
+          KinoDux.SQLPreviewCell,
+          KinoDux.SourceBrowserCell,
+          KinoDux.ChartCell,
+          KinoDux.FlameClusterCell
+        ]
+      ]
+    ]
+  end
+
+  defp aliases do
+    [
+      check: [
+        "format --check-formatted",
+        "compile --warnings-as-errors",
+        "test",
+        "credo --strict"
+      ]
     ]
   end
 end

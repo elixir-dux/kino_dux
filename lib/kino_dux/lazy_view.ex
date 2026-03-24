@@ -32,11 +32,13 @@ defmodule KinoDux.LazyView do
     Kino.HTML.new(html)
   end
 
-  defp format_source({:parquet, path}), do: escape(path)
-  defp format_source({:parquet, path, _opts}), do: escape(path)
-  defp format_source({:csv, path, _opts}), do: escape(path)
-  defp format_source({:ndjson, path, _opts}), do: escape(path)
-  defp format_source({:sql, sql}), do: escape(truncate(sql, 60))
+  defp format_source({:parquet, path}), do: "parquet: #{escape(truncate(path, 60))}"
+  defp format_source({:parquet, path, _opts}), do: "parquet: #{escape(truncate(path, 60))}"
+  defp format_source({:csv, path, _opts}), do: "csv: #{escape(truncate(path, 60))}"
+  defp format_source({:ndjson, path, _opts}), do: "ndjson: #{escape(truncate(path, 60))}"
+  defp format_source({:sql, sql}), do: "sql: #{escape(truncate(sql, 60))}"
+  defp format_source({:attached, db, table}), do: "attached: #{db}.#{escape(table)}"
+  defp format_source({:attached, db, table, _opts}), do: "attached: #{db}.#{escape(table)}"
   defp format_source({:list, rows}), do: "list (#{length(rows)} rows)"
   defp format_source({:table, _ref}), do: "materialized table"
   defp format_source(nil), do: "empty"
@@ -100,23 +102,23 @@ defmodule KinoDux.LazyView do
   defp describe_op({:window, _}), do: "window"
   defp describe_op({:mutate_with, _}), do: "mutate_with (raw SQL)"
   defp describe_op({:filter_with, _}), do: "filter_with (raw SQL)"
+  defp describe_op({:asof_join, _kind, _right, _opts}), do: "asof_join"
+  defp describe_op({:insert_into, _target, _opts}), do: "insert_into"
   defp describe_op({name, _}), do: to_string(name)
   defp describe_op(other), do: inspect(other)
 
   defp binding_names(bindings) when is_list(bindings) do
-    bindings
-    |> Enum.map(fn
+    Enum.map_join(bindings, ", ", fn
       {name, _ast} -> to_string(name)
       name when is_atom(name) -> to_string(name)
       other -> inspect(other)
     end)
-    |> Enum.join(", ")
   end
 
   defp binding_names(_), do: "..."
 
   defp col_names(cols) when is_list(cols) do
-    cols |> Enum.map(&to_string/1) |> Enum.join(", ")
+    Enum.map_join(cols, ", ", &to_string/1)
   end
 
   defp col_names(col) when is_atom(col), do: to_string(col)

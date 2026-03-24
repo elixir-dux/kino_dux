@@ -56,17 +56,17 @@ defmodule KinoDux.ChartCell do
       mark = vl_mark(chart_type)
 
       lines = [
-        ~s(#{binding}),
-        ~s(|> Dux.to_rows()),
-        ~s(|> VegaLite.new(#{title_opt(title)})),
-        ~s(|> VegaLite.#{mark}()),
-        ~s(|> VegaLite.encode_field(:x, "#{x}"#{type_hint(chart_type, :x)})),
-        ~s(|> VegaLite.encode_field(:y, "#{y}"#{type_hint(chart_type, :y)}))
+        ~s[#{binding}],
+        ~s[|> Dux.compute()],
+        ~s[|> VegaLite.new(#{title_opt(title)})],
+        ~s[|> VegaLite.#{mark}()],
+        ~s[|> VegaLite.encode_field(:x, "#{x}"#{type_hint(chart_type, :x)})],
+        ~s[|> VegaLite.encode_field(:y, "#{y}"#{type_hint(chart_type, :y)})]
       ]
 
       lines =
         if color != "" do
-          lines ++ [~s(|> VegaLite.encode_field(:color, "#{color}"))]
+          lines ++ [~s[|> VegaLite.encode_field(:color, "#{color}")]]
         else
           lines
         end
