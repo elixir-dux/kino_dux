@@ -54,8 +54,15 @@ defmodule KinoDux.FlameClusterCell do
     backend_mod = backend_module(backend)
     backend_opts = backend_opts(backend, cpus, memory, gpu)
 
+    backend_line =
+      if backend_opts == "" do
+        "  backend: #{backend_mod}"
+      else
+        "  backend: {#{backend_mod}, [#{backend_opts}]}"
+      end
+
     opts = [
-      "  backend: {#{backend_mod}, #{backend_opts}}",
+      backend_line,
       "  max: #{max}",
       "  idle_shutdown_after: :timer.minutes(#{idle})"
     ]

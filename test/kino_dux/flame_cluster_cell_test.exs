@@ -2,7 +2,7 @@ defmodule KinoDux.FlameClusterCellTest do
   use ExUnit.Case, async: true
 
   describe "to_source/1" do
-    test "generates fly backend config" do
+    test "generates fly backend config with keyword list" do
       source =
         KinoDux.FlameClusterCell.to_source(%{
           "backend" => "fly",
@@ -15,7 +15,7 @@ defmodule KinoDux.FlameClusterCellTest do
         })
 
       assert source =~ "Dux.Flame.start_pool"
-      assert source =~ "FLAME.FlyBackend"
+      assert source =~ "{FLAME.FlyBackend, ["
       assert source =~ "FLY_API_TOKEN"
       assert source =~ "cpus: 4"
       assert source =~ "memory_mb: 16384"
