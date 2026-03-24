@@ -26,13 +26,12 @@ defmodule KinoDux do
 
   ## Smart Cells
 
-  Four smart cells register at startup:
+  Three smart cells register at startup:
 
   - **Dux SQL Preview** — pick a `%Dux{}` binding, see the generated SQL
   - **Dux Data Source** — form-driven source selection (Parquet, CSV, NDJSON, SQL,
     attached databases) that generates `Dux.from_*` code
   - **Dux Chart** — VegaLite chart builder with chart type, axis, and color selection
-  - **Dux FLAME Cluster** — configure `Dux.Flame` elastic compute pools
 
   ## Distributed Query Progress
 

@@ -63,8 +63,7 @@ defmodule KinoDux.MixProject do
         "Smart Cells": [
           KinoDux.SQLPreviewCell,
           KinoDux.SourceBrowserCell,
-          KinoDux.ChartCell,
-          KinoDux.FlameClusterCell
+          KinoDux.ChartCell
         ]
       ]
     ]

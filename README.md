@@ -27,7 +27,6 @@ Mix.install([
 - **SQL Preview** — pick a Dux binding, see the generated SQL
 - **Source Browser** — form-driven source selection (Parquet, CSV, NDJSON, SQL, attached databases)
 - **Chart** — VegaLite chart builder with axis and chart type selection
-- **FLAME Cluster** — configure `Dux.Flame` elastic compute pools
 
 ## License
 
