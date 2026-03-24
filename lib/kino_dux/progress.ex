@@ -46,8 +46,6 @@ defmodule KinoDux.Progress do
 
   defp attach_telemetry(%__MODULE__{ref: ref, frame: frame}) do
     handler_id = "kino_dux_progress_#{inspect(ref)}"
-    self_pid = self()
-
     # We use a GenServer-like approach: telemetry handlers send messages
     # to a task that updates the frame
     {:ok, pid} =
@@ -85,7 +83,13 @@ defmodule KinoDux.Progress do
   defp progress_loop(state) do
     receive do
       {:telemetry, [:dux, :distributed, :fan_out, :start], _m, meta} ->
-        state = %{state | state: :fan_out, n_workers: meta.n_workers, start_time: System.monotonic_time()}
+        state = %{
+          state
+          | state: :fan_out,
+            n_workers: meta.n_workers,
+            start_time: System.monotonic_time()
+        }
+
         render_progress(state)
         progress_loop(state)
 
@@ -94,7 +98,7 @@ defmodule KinoDux.Progress do
         render_progress(state)
         progress_loop(state)
 
-      {:telemetry, [:dux, :distributed, :worker, :stop], measurements, meta} ->
+      {:telemetry, [:dux, :distributed, :worker, :stop], _measurements, _meta} ->
         done = state.workers_done + 1
         state = %{state | workers_done: done}
         render_progress(state)
@@ -113,12 +117,14 @@ defmodule KinoDux.Progress do
       {:telemetry, [:dux, :query, :stop], measurements, _meta} ->
         state = %{state | state: :done}
         render_done(state, measurements.duration)
-        # Exit the loop — done
+
+      # Exit the loop — done
 
       {:telemetry, [:dux, :query, :exception], _m, meta} ->
         state = %{state | state: :error}
         render_error(state, meta.reason)
-        # Exit the loop — error
+
+      # Exit the loop — error
 
       _ ->
         progress_loop(state)
