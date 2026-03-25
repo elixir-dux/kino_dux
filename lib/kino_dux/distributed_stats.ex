@@ -5,13 +5,13 @@ defmodule KinoDux.DistributedStats do
   # Shows node count, merge strategy, total duration, and per-node breakdown.
 
   def render(%{distributed: true} = meta) do
-    node_list = format_node_list(meta[:nodes] || [])
     header = format_header(meta)
+    worker_details = format_worker_stats(meta[:worker_stats] || [])
 
     """
     <div style="font-family:'Fira Code',monospace;font-size:12px;background:#1a1918;color:#e8e4de;padding:12px 16px;border-radius:6px 6px 0 0;border:1px solid #2a2724;border-bottom:none;">
       #{header}
-      <div style="font-size:11px;color:#6b665e;">#{node_list}</div>
+      #{worker_details}
     </div>
     """
   end
@@ -39,14 +39,26 @@ defmodule KinoDux.DistributedStats do
     """
   end
 
-  defp format_node_list(nodes) do
-    nodes
-    |> Enum.frequencies()
-    |> Enum.map_join(" &middot; ", fn {node, count} ->
-      short = node |> to_string() |> short_node_name()
-      workers_label = if count > 1, do: "#{count} workers", else: "1 worker"
-      ~s[<span style="color:#6ba3d6;">#{escape(short)}</span> (#{workers_label})]
-    end)
+  defp format_worker_stats([]), do: ""
+
+  defp format_worker_stats(stats) do
+    rows =
+      stats
+      |> Enum.with_index(1)
+      |> Enum.map_join("\n", fn {stat, i} ->
+        node_short = stat[:node] |> to_string() |> short_node_name() |> escape()
+        duration = format_ms(stat[:duration_ms] || 0)
+        ipc_kb = div(stat[:ipc_bytes] || 0, 1024)
+
+        ipc_str =
+          if ipc_kb > 1024,
+            do: "#{Float.round(ipc_kb / 1024, 1)} MB",
+            else: "#{ipc_kb} KB"
+
+        ~s[<div>Worker #{i}: <span style="color:#6ba3d6;">#{node_short}</span> &middot; #{duration} &middot; #{ipc_str}</div>]
+      end)
+
+    ~s[<div style="font-size:11px;color:#6b665e;margin-top:4px;">#{rows}</div>]
   end
 
   defp format_merge(:streaming), do: "streaming"
