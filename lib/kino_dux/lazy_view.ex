@@ -100,10 +100,18 @@ defmodule KinoDux.LazyView do
   defp describe_op({:pivot_wider, _}), do: "pivot_wider"
   defp describe_op({:pivot_longer, _}), do: "pivot_longer"
   defp describe_op({:window, _}), do: "window"
-  defp describe_op({:mutate_with, _}), do: "mutate_with (raw SQL)"
-  defp describe_op({:filter_with, _}), do: "filter_with (raw SQL)"
-  defp describe_op({:asof_join, _kind, _right, _opts}), do: "asof_join"
+  defp describe_op({:rename, mapping}), do: "rename: #{binding_names(mapping)}"
+  defp describe_op({:drop_nil, cols}), do: "drop_nil: #{col_names(cols)}"
+  defp describe_op({:slice, offset, len}), do: "slice(#{offset}, #{len})"
+  defp describe_op({:summarise_with, bindings}), do: "summarise: #{binding_names(bindings)}"
+  defp describe_op({:mutate_with, bindings}), do: "mutate: #{binding_names(bindings)}"
+  defp describe_op({:filter_with, _}), do: "filter (raw SQL)"
+  defp describe_op(:ungroup), do: "ungroup"
+  defp describe_op({:asof_join, _, _, _, _, _}), do: "asof_join"
+  defp describe_op({:join, _, _, _, _}), do: "join"
   defp describe_op({:insert_into, _target, _opts}), do: "insert_into"
+  defp describe_op({:pivot_wider, _, _, _}), do: "pivot_wider"
+  defp describe_op({:pivot_longer, _, _, _}), do: "pivot_longer"
   defp describe_op({name, _}), do: to_string(name)
   defp describe_op(other), do: inspect(other)
 
