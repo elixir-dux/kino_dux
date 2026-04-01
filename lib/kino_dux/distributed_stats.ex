@@ -42,12 +42,15 @@ defmodule KinoDux.DistributedStats do
   defp format_worker_stats([]), do: ""
 
   defp format_worker_stats(stats) do
+    max_duration = stats |> Enum.map(&(&1[:duration_ms] || 0)) |> Enum.max(fn -> 0 end)
+
     rows =
       stats
       |> Enum.with_index(1)
       |> Enum.map_join("\n", fn {stat, i} ->
         node_short = stat[:node] |> to_string() |> short_node_name() |> escape()
-        duration = format_ms(stat[:duration_ms] || 0)
+        dur_ms = stat[:duration_ms] || 0
+        duration = format_ms(dur_ms)
         ipc_kb = div(stat[:ipc_bytes] || 0, 1024)
 
         ipc_str =
@@ -55,7 +58,13 @@ defmodule KinoDux.DistributedStats do
             do: "#{Float.round(ipc_kb / 1024, 1)} MB",
             else: "#{ipc_kb} KB"
 
-        ~s[<div>Worker #{i}: <span style="color:#6ba3d6;">#{node_short}</span> &middot; #{duration} &middot; #{ipc_str}</div>]
+        # Highlight the slowest worker
+        dur_style =
+          if dur_ms == max_duration and length(stats) > 1,
+            do: ~s[style="color:#d6956b;"],
+            else: ""
+
+        ~s[<div>Worker #{i}: <span style="color:#6ba3d6;">#{node_short}</span> &middot; <span #{dur_style}>#{duration}</span> &middot; #{ipc_str}</div>]
       end)
 
     ~s[<div style="font-size:11px;color:#6b665e;margin-top:4px;">#{rows}</div>]

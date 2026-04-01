@@ -9,8 +9,8 @@ Livebook integrations for [Dux](https://github.com/elixir-dux/dux) — rich rend
 
 ```elixir
 Mix.install([
-  {:dux, "~> 0.2.0"},
-  {:kino_dux, "~> 0.1"}
+  {:dux, "~> 0.3.0"},
+  {:kino_dux, "~> 0.2"}
 ])
 ```
 
